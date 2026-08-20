@@ -38,7 +38,20 @@ app.get("/api/me", (req, res) => {
 app.use("/api/boards", boardsRouter);
 app.use("/api/admin", adminLimiter, adminRouter);
 app.use("/api/search", searchRouter);
-app.use("/api/assets", requireApproved, express.static(ASSET_DIR), assetsRouter);
+// nosniff + a locked-down CSP on every served asset: extension is allowlisted server-side
+// (see routes/assets.ts) so this Content-Type is trustworthy, but nosniff+CSP is cheap
+// defense in depth against a same-origin stored-XSS via a mislabeled upload.
+app.use(
+  "/api/assets",
+  requireApproved,
+  express.static(ASSET_DIR, {
+    setHeaders: (res) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
+    },
+  }),
+  assetsRouter
+);
 
 // serve the built React app in production (single combined container)
 const webDist = path.resolve(process.cwd(), "../web/dist");

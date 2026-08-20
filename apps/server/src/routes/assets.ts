@@ -13,7 +13,12 @@ await mkdir(ASSET_DIR, { recursive: true });
 // the express.static handler that serves the same directory for GET.
 export const assetsRouter = Router();
 
-const ID_RE = /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$/;
+// no .svg (can carry <script>) and nothing HTML/JS-shaped — a same-origin upload of
+// arbitrary type served back to another approved user is a stored-XSS vector, so the
+// allowlist is the real control, not just filename shape. Content-Type on read (see
+// index.ts) is likewise forced from this same extension list, never sniffed from content.
+export const ASSET_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "mp4", "webm", "pdf"] as const;
+const ID_RE = new RegExp(`^[a-zA-Z0-9_-]+\\.(${ASSET_EXTENSIONS.join("|")})$`);
 
 assetsRouter.put("/:id", async (req, res) => {
   if (!ID_RE.test(req.params.id)) return res.status(400).json({ error: "invalid_id" });

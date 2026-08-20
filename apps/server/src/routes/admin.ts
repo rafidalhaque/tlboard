@@ -1,3 +1,4 @@
+import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
@@ -5,6 +6,18 @@ import { requireApproved, requireAdmin, requireSuperAdmin } from "../middleware.
 
 export const adminRouter = Router();
 adminRouter.use(requireApproved, requireAdmin);
+
+// a plain admin must not be able to ban/reject a super_admin (or another admin) — only a
+// super_admin can act on accounts at or above the admin tier. Applied to every mutating route
+// below via router.param so no individual handler can forget it.
+adminRouter.param("id", async (req: Request, res: Response, next: NextFunction, id: string) => {
+  if (req.user!.role === "super_admin") return next();
+  const target = await db.query.users.findFirst({ where: eq(schema.users.id, id) });
+  if (target && (target.role === "super_admin" || target.role === "admin")) {
+    return res.status(403).json({ error: "forbidden" });
+  }
+  next();
+});
 
 adminRouter.get("/users/pending", async (_req, res) => {
   const rows = await db.query.users.findMany({ where: eq(schema.users.status, "pending") });
