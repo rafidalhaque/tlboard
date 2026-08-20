@@ -10,7 +10,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
   app:
-    build: .
+    build: 
+      context: .
+      network: host
     restart: unless-stopped
     depends_on:
       - postgres
