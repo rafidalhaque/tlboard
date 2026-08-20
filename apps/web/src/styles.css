@@ -161,7 +161,8 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   border: 1px solid var(--border);
   background: var(--surface);
   border-radius: var(--radius-card);
-  overflow: hidden;
+  /* no overflow:hidden here — it would clip the overflow-menu dropdown, which is an
+     absolutely-positioned descendant of this card and needs to pop out past its edge */
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -171,6 +172,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
 .board-thumb {
   height: 96px;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
