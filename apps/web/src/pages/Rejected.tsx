@@ -1,3 +1,5 @@
+import SignOutButton from "../components/SignOutButton.js";
+
 export default function Rejected({ status }: { status: "rejected" | "banned" }) {
   return (
     <div className="center-screen">
@@ -8,7 +10,7 @@ export default function Rejected({ status }: { status: "rejected" | "banned" }) 
             ? "Your account has been banned. Contact an admin if you believe this is a mistake."
             : "Your access request was not approved. Contact an admin if you believe this is a mistake."}
         </p>
-        <a className="btn" href="/api/auth/signout">Sign out</a>
+        <SignOutButton />
       </div>
     </div>
   );

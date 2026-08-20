@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, type Board, type Me } from "../lib/api.js";
 import BoardCard from "../components/BoardCard.js";
 import SearchBar from "../components/SearchBar.js";
+import SignOutButton from "../components/SignOutButton.js";
 
 export default function Dashboard({ me }: { me: Me }) {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -26,7 +27,7 @@ export default function Dashboard({ me }: { me: Me }) {
             <button className="btn" onClick={() => navigate("/admin")}>Admin</button>
           )}
           <span className="muted">{me.name || me.email}</span>
-          <a className="btn" href="/api/auth/signout">Sign out</a>
+          <SignOutButton />
         </div>
       </div>
 

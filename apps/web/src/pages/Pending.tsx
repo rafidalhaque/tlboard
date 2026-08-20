@@ -1,4 +1,5 @@
 import type { Me } from "../lib/api.js";
+import SignOutButton from "../components/SignOutButton.js";
 
 export default function Pending({ me }: { me: Me }) {
   return (
@@ -13,7 +14,7 @@ export default function Pending({ me }: { me: Me }) {
           <br />
           <span className="muted">{me.email}</span>
         </p>
-        <a className="btn" href="/api/auth/signout">Sign out</a>
+        <SignOutButton />
       </div>
     </div>
   );
