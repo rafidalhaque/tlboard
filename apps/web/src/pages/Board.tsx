@@ -8,6 +8,7 @@ import { assetStore } from "../lib/assetStore.js";
 import { ArrowLeftIcon } from "../components/icons.js";
 import OverflowMenu from "../components/OverflowMenu.js";
 import ShareDialog from "../components/ShareDialog.js";
+import Avatar from "../components/Avatar.js";
 
 export default function Board({ me }: { me: Me }) {
   const { id } = useParams<{ id: string }>();
@@ -68,12 +69,15 @@ export default function Board({ me }: { me: Me }) {
   return (
     <div style={{ position: "fixed", inset: 0 }}>
       <div className="topbar" style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}>
-        <button className="btn btn-ghost" onClick={() => navigate("/dashboard")}>
-          <ArrowLeftIcon /> {meta?.name ?? "Board"}
-        </button>
+        <div className="topbar-brand">
+          <button className="btn btn-ghost" onClick={() => navigate("/dashboard")}>
+            <ArrowLeftIcon /> Boards
+          </button>
+          <strong className="text-heading">{meta?.name ?? "Board"}</strong>
+        </div>
         <div className="topbar-account">
           {readOnly && <span className="badge badge-neutral">View only</span>}
-          <span className="muted">{me.name || me.email}</span>
+          <Avatar name={me.name || me.email} seed={me.id} size={26} />
           {meta && (
             <OverflowMenu
               actions={[
