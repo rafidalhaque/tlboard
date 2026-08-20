@@ -1,12 +1,23 @@
 services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
   app:
     build: .
     restart: unless-stopped
     depends_on:
       - postgres
       - meilisearch
-    ports:
-      - "3000:3000"
+    # no host port — only the nginx container talks to app, on the internal compose network
+    expose:
+      - "3000"
     env_file: .env
     environment:
       DATABASE_URL: postgres://tlboard:${POSTGRES_PASSWORD}@postgres:5432/tlboard

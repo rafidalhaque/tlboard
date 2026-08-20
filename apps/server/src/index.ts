@@ -19,8 +19,9 @@ import { requireApproved } from "./middleware.js";
 const app = express();
 const APP_ORIGINS = (process.env.APP_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim());
 
-// behind Nginx/Cloudflare: trust the one hop so req.protocol/secure cookies work off X-Forwarded-*
-app.set("trust proxy", 1);
+// two hops in front: host Nginx/Cloudflare, then the container nginx in docker-compose —
+// trust both so req.protocol/secure cookies read the real client's X-Forwarded-* correctly
+app.set("trust proxy", 2);
 app.use(cors({ origin: APP_ORIGINS, credentials: true }));
 app.use(express.json());
 

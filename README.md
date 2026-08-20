@@ -53,11 +53,17 @@ else's access depends on the signup mode (Admin → Settings), default `approval
 
 ## Deploying behind Nginx + Cloudflare
 
-- Point Nginx at the `app` container's port 3000; proxy both HTTP and the `/api/sync/*`
-  WebSocket upgrade (`proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection
-  "upgrade";`).
-- Forward `X-Forwarded-For` / `X-Forwarded-Proto` — the server calls `app.set("trust proxy", 1)`
-  so secure cookies and `req.protocol` work correctly behind one hop.
+Topology: `Cloudflare → host Nginx → container nginx (docker-compose, :8080) → app (:3000,
+internal only)`. Postgres and Meilisearch have no host port mapping — nothing but `app` can
+reach them.
+
+- Point the **host** Nginx's proxy_pass at `127.0.0.1:8080` (the `nginx` container's published
+  port), forwarding `X-Forwarded-For` / `X-Forwarded-Proto` as usual.
+- The **container** nginx (`nginx/nginx.conf`) forwards those headers on to `app` and handles
+  the `/api/sync/*` WebSocket upgrade — no changes needed there for a standard setup.
+- The server calls `app.set("trust proxy", 2)` — two hops (host Nginx, then container nginx)
+  are trusted, so `req.protocol` and secure cookies read the real client's scheme correctly.
+  Adding or removing a proxy hop means updating this number to match.
 - Set `AUTH_URL` to the public HTTPS origin so OAuth callback URLs are generated correctly.
 - Cloudflare: proxy mode is fine; WebSockets are supported by default on paid and free plans.
 
