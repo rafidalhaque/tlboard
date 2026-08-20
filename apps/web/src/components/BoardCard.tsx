@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type Board } from "../lib/api.js";
+import { gradientFor, initialsFor } from "../lib/color.js";
 import ShareDialog from "./ShareDialog.js";
+import OverflowMenu from "./OverflowMenu.js";
+import { VisibilityBadge } from "./StatusBadge.js";
 
 export default function BoardCard({
   board,
@@ -24,50 +27,56 @@ export default function BoardCard({
     onChanged();
   }
 
+  const open = () => navigate(`/board/${board.id}`);
+
   return (
-    <div className="board-card">
-      {renaming ? (
-        <input
-          autoFocus
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={submitRename}
-          onKeyDown={(e) => e.key === "Enter" && submitRename()}
-        />
-      ) : (
-        <strong onClick={() => navigate(`/board/${board.id}`)} style={{ cursor: "pointer" }}>
-          {highlightedName ? <span dangerouslySetInnerHTML={{ __html: highlightedName }} /> : board.name}
-        </strong>
-      )}
-      <span className="muted">
-        {board.visibility === "org" ? "Org-visible" : "Private"} · updated {new Date(board.updatedAt).toLocaleDateString()}
-      </span>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        <button className="btn" onClick={() => navigate(`/board/${board.id}`)}>Open</button>
-        {canManage && <button className="btn" onClick={() => setRenaming(true)}>Rename</button>}
-        {canManage && <button className="btn" onClick={() => setSharing(true)}>Share</button>}
-        <button
-          className="btn"
-          onClick={async () => {
-            await api.duplicateBoard(board.id);
-            onChanged();
-          }}
-        >
-          Duplicate
-        </button>
-        {canManage && (
-          <button
-            className="btn btn-danger"
-            onClick={async () => {
-              if (confirm(`Delete "${board.name}"?`)) {
-                await api.deleteBoard(board.id);
-                onChanged();
-              }
-            }}
-          >
-            Delete
-          </button>
-        )}
+    <div className="board-card" onClick={renaming ? undefined : open}>
+      <div className="board-thumb" style={{ background: gradientFor(board.id) }}>
+        {initialsFor(board.name || "?")}
+      </div>
+      <div className="board-card-body">
+        <div className="board-card-title-row">
+          {renaming ? (
+            <input
+              autoFocus
+              value={name}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={submitRename}
+              onKeyDown={(e) => e.key === "Enter" && submitRename()}
+              style={{ flex: 1 }}
+            />
+          ) : (
+            <span className="board-card-title">
+              {highlightedName ? <span dangerouslySetInnerHTML={{ __html: highlightedName }} /> : board.name}
+            </span>
+          )}
+          <OverflowMenu
+            actions={[
+              ...(canManage ? [{ label: "Rename", onClick: () => setRenaming(true) }] : []),
+              ...(canManage ? [{ label: "Share", onClick: () => setSharing(true) }] : []),
+              { label: "Duplicate", onClick: async () => { await api.duplicateBoard(board.id); onChanged(); } },
+              ...(canManage
+                ? [
+                    {
+                      label: "Delete",
+                      danger: true,
+                      onClick: async () => {
+                        if (confirm(`Delete "${board.name}"?`)) {
+                          await api.deleteBoard(board.id);
+                          onChanged();
+                        }
+                      },
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </div>
+        <div className="board-card-meta">
+          <VisibilityBadge visibility={board.visibility} />
+          <span className="muted">Updated {new Date(board.updatedAt).toLocaleDateString()}</span>
+        </div>
       </div>
       {sharing && <ShareDialog board={board} onClose={() => setSharing(false)} />}
     </div>

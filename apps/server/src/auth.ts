@@ -16,6 +16,9 @@ export const authConfig: ExpressAuthConfig = {
     GitHub({ clientId: process.env.GITHUB_CLIENT_ID, clientSecret: process.env.GITHUB_CLIENT_SECRET }),
   ],
   session: { strategy: "jwt" },
+  // send OAuth failures back to our own Login screen (which reads ?error=... and renders a
+  // styled banner) instead of Auth.js's default error page
+  pages: { error: "/" },
   cookies: {
     sessionToken: { options: { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production" } },
   },

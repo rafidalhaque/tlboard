@@ -25,7 +25,13 @@ export default function ShareDialog({ board, onClose }: { board: Board; onClose:
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        e.stopPropagation(); // the dialog can be opened from a clickable board-card; don't let a backdrop click bubble into it
+        onClose();
+      }}
+    >
       <div className="card" style={{ maxWidth: 480, width: "100%" }} onClick={(e) => e.stopPropagation()}>
         <h3 style={{ marginTop: 0 }}>Share "{board.name}"</h3>
 
