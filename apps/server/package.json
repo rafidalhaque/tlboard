@@ -10,7 +10,7 @@
     "db:migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
-    "@auth/core": "^0.37.2",
+    "@auth/core": "^0.41.3",
     "@auth/express": "^0.8.0",
     "@tldraw/sync-core": "^3.13.0",
     "@tldraw/tlschema": "^3.13.0",
