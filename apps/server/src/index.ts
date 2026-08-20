@@ -17,11 +17,11 @@ import { db, schema } from "./db/index.js";
 import { requireApproved } from "./middleware.js";
 
 const app = express();
-const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:5173";
+const APP_ORIGINS = (process.env.APP_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim());
 
 // behind Nginx/Cloudflare: trust the one hop so req.protocol/secure cookies work off X-Forwarded-*
 app.set("trust proxy", 1);
-app.use(cors({ origin: APP_ORIGIN, credentials: true }));
+app.use(cors({ origin: APP_ORIGINS, credentials: true }));
 app.use(express.json());
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20 });
