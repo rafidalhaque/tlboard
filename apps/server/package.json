@@ -18,7 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.36.4",
-    "express": "^4.21.1",
+    "express": "^4.22.3",
     "express-rate-limit": "^7.4.1",
     "meilisearch": "^0.48.1",
     "nanoid": "^5.0.9",
